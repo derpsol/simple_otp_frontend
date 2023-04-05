@@ -29,12 +29,13 @@ function Home() {
   const {verify, register} = useAuthContext();
   const classes = useStyles();
   const [otp, setOtp] = useState("");
-  const onChange = (value: string) => {
-    setOtp(value);
-  };
   const [type, setType] = useState('email');
   const [digit, setDigit] = useState('4');
   const [email, setEmail] = useState('');
+  const [show, setShow] = useState(false);
+  const onChange = (value: string) => {
+    setOtp(value);
+  };
 
   useEffect(() => {
     if(otp.length === parseInt(digit)) {
@@ -75,7 +76,7 @@ function Home() {
         onChange={onChange}
         numInputs={parseInt(digit)}
         shouldAutoFocus
-        inputType="number"
+        inputType={show ? 'password' : 'number'}
         renderInput={(props) => <input {...props} />}
         containerStyle={useStyles().input}
         inputStyle={{
@@ -90,6 +91,7 @@ function Home() {
           appearance: "none",
         }}
       />
+      <Button className="btn btn-success" variant="contained" sx={{mb: '20px'}} onClick={() => {setShow(!show)}}>{show ? 'hide' : 'show'}</Button>
     </Box>
   );
 }
