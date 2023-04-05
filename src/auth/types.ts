@@ -25,4 +25,5 @@ export type JWTContextType = {
   isInitialized: boolean;
   user: AuthUserType;
   verify: (type: string, code: string) => Promise<{ message: string; }>;
+  register: (email: string, digit: string) => Promise<{ message: string; }>;
 };

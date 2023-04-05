@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import OTPInput from "react-otp-input";
 import { makeStyles } from "@mui/styles";
@@ -26,7 +26,7 @@ const useStyles = makeStyles({
 });
 
 function Home() {
-  const {verify} = useAuthContext();
+  const {verify, register} = useAuthContext();
   const classes = useStyles();
   const [otp, setOtp] = useState("");
   const onChange = (value: string) => {
@@ -34,22 +34,42 @@ function Home() {
   };
   const [type, setType] = useState('email');
   const [digit, setDigit] = useState('4');
+  const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if(otp.length === parseInt(digit)) {
+      onCodeSubmit();
+    }
+  }, [otp])
 
   const onCodeSubmit = async () => {
     try {
       if (verify) {
         const message = await verify(type, otp);
+        alert(message);
       }
     } catch (error: any) {
     }
   };
 
+  const onSendCode = async () => {
+    try{
+      const message = await register(
+        email,
+        digit,
+      );
+      alert(message);
+    } catch {
+
+    }
+  }
+
   return (
     
     <Box display="flex" alignItems="center" mt="20px" flexDirection="column">
       <TextField placeholder="Enter Number of OTP" onChange={(e) => {setDigit(e.target.value)}} sx={{mb: '20px'}}/>
-      <TextField placeholder="Enter Email" sx={{mb: '20px'}}/>
-      <Button className="btn btn-success" variant="contained" sx={{mb: '20px'}}>Send Verification Code</Button>
+      <TextField placeholder="Enter Email" onChange={(e) => { setEmail(e.target.value)}} sx={{mb: '20px'}}/>
+      <Button className="btn btn-success" variant="contained" sx={{mb: '20px'}} onClick={onSendCode}>Send Verification Code</Button>
       <OTPInput
         value={otp}
         onChange={onChange}

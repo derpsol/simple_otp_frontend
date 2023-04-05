@@ -6,10 +6,14 @@ import {ActionMapType, AuthStateType, AuthUserType, JWTContextType} from './type
 
 enum Types {
     VERIFY = 'VERIFY',
+    REGISTER = 'REGISTER',
 }
 
 type Payload = {
     [Types.VERIFY]: {
+        user: AuthUserType;
+    };
+    [Types.REGISTER]: {
         user: AuthUserType;
     };
 };
@@ -32,6 +36,13 @@ const reducer = (state: AuthStateType, action: ActionsType) => {
             user: action.payload.user,
         };
     }
+    if (action.type === Types.REGISTER) {
+        return {
+            ...state,
+            isAuthenticated: false,
+            user: action.payload.user,
+        };
+    }
     return state;
 };
 
@@ -48,10 +59,34 @@ type AuthProviderProps = {
 export function AuthProvider({children}: AuthProviderProps) {
     const [state, dispatch] = useReducer(reducer, initialState);
 
+
+    const register = useCallback(
+        async (
+            email: string,
+            digit: string,
+        ) => {
+            const response = await axios.post('http://43.206.151.17/users/register', {
+                email,
+                digit,
+            });
+
+            const {message, user} = response.data;
+
+            dispatch({
+                type: Types.REGISTER,
+                payload: {
+                    user,
+                },
+            });
+
+            return message;
+        },
+        [],
+    );
     // Verify
     const verify = useCallback(
         async (type: string, code: string) => {
-            const response = await axios.post('/users/validate', {
+            const response = await axios.post('http://43.206.151.17/users/validate', {
                 type,
                 code,
                 _id: state.user?._id,
@@ -70,12 +105,14 @@ export function AuthProvider({children}: AuthProviderProps) {
             user: state.user,
             method: 'jwt',
             verify,
+            register,
         }),
         [
             state.isInitialized,
             state.isAuthenticated,
             state.user,
             verify,
+            register,
         ],
     );
 
